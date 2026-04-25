@@ -3,6 +3,8 @@ import { Inter, Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 import Header from "@/components/Header";
 
+import Footer from "@/components/Footer";
+
 const inter = Inter({
   subsets: ["latin"],
   variable: "--font-inter",
@@ -26,9 +28,10 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="es" className={`${inter.variable} ${jakarta.variable}`}>
-      <body className="bg-slate-50 text-slate-900 font-sans antialiased min-h-screen">
+      <body className="bg-slate-50 text-slate-900 font-sans antialiased min-h-screen flex flex-col">
         <Header />
-        <main>{children}</main>
+        <main className="flex-1">{children}</main>
+        <Footer />
       </body>
     </html>
   );
