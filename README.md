@@ -1,90 +1,108 @@
-# SistemasPara.com
+# SistemasPara.com — Massive SEO B2B Directory
 
-Directorio B2B masivo de software por industria, monetizado con SEO + AdSense.
+![SistemasPara Banner](./sistemas_para_banner_1777151771770.png)
 
-- **Frontend:** Next.js 16 (App Router) · TypeScript · Tailwind CSS v4
-- **Backend:** Supabase (Postgres + RLS)
-- **Motor SEO:** Python + Gemini API (`google-genai`) en `/scripts`
-- **Deploy:** Vercel (region `gru1` São Paulo)
+> **The ultimate automated engine for B2B software discovery.** Powered by AI, built for scale, and optimized for high-conversion SEO traffic.
 
-Diseño y reglas visuales en [design.md](./design.md). Convenciones de Next.js
-en [AGENTS.md](./AGENTS.md).
+[![Next.js](https://img.shields.io/badge/Next.js-16-black?style=for-the-badge&logo=next.js)](https://nextjs.org/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind-v4-38B2AC?style=for-the-badge&logo=tailwind-css)](https://tailwindcss.com/)
+[![Supabase](https://img.shields.io/badge/Supabase-Database-3ECF8E?style=for-the-badge&logo=supabase)](https://supabase.com/)
+[![Gemini AI](https://img.shields.io/badge/Gemini-2.5_Flash-4285F4?style=for-the-badge&logo=google-gemini)](https://deepmind.google/technologies/gemini/)
 
 ---
 
-## Setup local
+## 🚀 The Vision: Mass-Scale Growth
+SistemasPara is not just a directory; it's a **programmatic SEO powerhouse**. Our mission is to dominate the B2B software search space by generating high-quality, research-backed articles at an unprecedented scale.
 
+- **🎯 Goal:** Generate **1,000+ unique SEO articles per day**.
+- **📈 Strategy:** Capture long-tail "Software for [Industry]" keywords.
+- **💰 Monetization:** Scale traffic to maximize **Google AdSense** revenue and high-ticket **Affiliate** conversions.
+
+---
+
+## 🧠 The Engine: Gemini AI Integration
+Unlike generic AI scrapers, SistemasPara uses a sophisticated **two-pass research pipeline** powered by **Gemini 2.5 Flash** with **Google Search Grounding**.
+
+### How it Works:
+1.  **Step 1: Grounded Research** 🔍
+    The engine searches the live web for *real* software tools, pricing models, and specific features for a given industry. No hallucinations—just real data.
+2.  **Step 2: SEO Composition** ✍️
+    A "Senior B2B SEO Editor" persona takes the research notes and crafts a 1,000-word article with semantic HTML, JSON-LD, and conversion-optimized structure.
+3.  **Step 3: Automated Deployment** ⚡
+    Articles are upserted into **Supabase** and instantly served via **Next.js ISR (Incremental Static Regeneration)** for lightning-fast performance and perfect indexing.
+
+---
+
+## 🛠️ Technical Stack
+
+### Core Technologies
+- **Frontend:** Next.js 16 (App Router) + TypeScript.
+- **Styling:** Tailwind CSS v4 (Modern, high-performance CSS).
+- **Database:** Supabase (PostgreSQL with RLS).
+- **Automation:** Python 3.12 + `google-genai` + `pandas`.
+
+### Architecture
+```mermaid
+graph LR
+    A[Keywords CSV] --> B(Python Engine)
+    B --> C{Gemini AI}
+    C -->|Search Grounding| D[Live Web Data]
+    D --> C
+    C -->|SEO Article| E[Supabase DB]
+    E --> F[Next.js App]
+    F --> G[Google Search Console]
+    G --> H((Traffic & Revenue))
+```
+
+---
+
+## ⚙️ Development Setup
+
+### 1. Web Application
 ```bash
-# 1. Instalar dependencias
+# Install dependencies
 npm install
 
-# 2. Copiar variables de entorno
+# Setup environment
 cp .env.example .env.local
-# Completar valores de Supabase, Gemini y SITE_URL
+# Add your Supabase & Gemini credentials
 
-# 3. Dev server
-npm run dev          # http://localhost:3000
+# Start development
+npm run dev
 ```
 
-## Estructura
-
-```
-app/
-  layout.tsx              fuentes, metadata global, header
-  page.tsx                home (hero, stats, categorías, CTA)
-  [slug]/page.tsx         página SEO dinámica con JSON-LD + ISR 1h
-  sitemap.ts              sitemap.xml dinámico desde Supabase
-  robots.ts               robots.txt
-  globals.css             tokens de Tailwind + utilidades de marca
-components/
-  Header.tsx · Logo.tsx · AdPlaceholder.tsx
-lib/
-  supabase.ts             cliente público (anon)
-  seoPages.ts             helpers tipados para la tabla seo_pages
-types/
-  supabase.ts             tipos generados desde el schema
-supabase/
-  migrations/001_create_seo_pages.sql
-scripts/
-  generate_pages.py       motor SEO programático
-  keywords.csv            input (industry, software_type)
-  requirements.txt
-```
-
-## Generar contenido SEO
-
+### 2. SEO Motor (The Generator)
 ```bash
 cd scripts
-python3 -m venv .venv && source .venv/bin/activate
+python3 -m venv .venv
+source .venv/bin/activate
 pip install -r requirements.txt
 
-python generate_pages.py --dry-run --limit 1   # validación
-python generate_pages.py --limit 3             # smoke test real
-python generate_pages.py                       # todo el CSV
+# Run a validation test
+python generate_pages.py --limit 1 --dry-run
+
+# Start massive generation
+python generate_pages.py
 ```
 
-El script hace **upsert por `slug`**, así que es idempotente. Ver
-[scripts/README.md](./scripts/README.md) para detalle.
+---
 
-## Deploy en Vercel
+## 📂 Project Structure
+- `app/` - The Next.js application (Dynamic routes for mass pages).
+- `scripts/` - The Python-based AI generation engine.
+- `lib/` - Shared database and SEO helpers.
+- `supabase/` - Database migrations and schema definitions.
+- `design.md` - UI/UX standards and brand guidelines.
 
-1. Push del repo a GitHub.
-2. **Import Project** en https://vercel.com/new — Vercel detecta Next.js.
-3. En **Settings → Environment Variables** cargar:
-   - `NEXT_PUBLIC_SUPABASE_URL`
-   - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
-   - `SUPABASE_SERVICE_ROLE_KEY` (solo si vas a correr Server Actions privadas)
-   - `NEXT_PUBLIC_SITE_URL` (la URL final del dominio)
-   - `GEMINI_API_KEY` solo si vas a correr el script desde un cron en Vercel; para el motor batch no hace falta.
-4. Deploy. El primer build genera `/sitemap.xml` con todas las páginas existentes.
+---
 
-`vercel.json` ya define la región `gru1` (São Paulo) para minimizar latencia
-contra Supabase `sa-east-1`, e inyecta headers de seguridad básicos.
+## 🌐 Deployment
+The project is optimized for **Vercel** with the following configuration:
+- **Region:** `gru1` (São Paulo) to minimize latency with Supabase.
+- **ISR:** Pages are cached and revalidated every hour to ensure freshness without sacrificing speed.
 
-## Comandos útiles
+---
 
-```bash
-npm run dev          # dev server
-npm run build        # build de producción (verifica tipos + SSG)
-npm run lint         # ESLint
-```
+<p align="center">
+  Built with ❤️ for the future of programmatic SEO.
+</p>
