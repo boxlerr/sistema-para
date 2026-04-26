@@ -4,8 +4,7 @@ import Link from "next/link";
 const NAV = [
   { href: "/sistemas", label: "Sistemas" },
   { href: "/categorias", label: "Categorías" },
-  { href: "/empresas", label: "Empresas" },
-  { href: "/recursos", label: "Recursos" },
+  { href: "/blog", label: "Blog" },
 ];
 
 export default function Header() {

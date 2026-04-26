@@ -192,14 +192,80 @@ def _generate_with_retry(client: Any, *, model: str, contents: str, config: dict
     raise last_exc
 
 
+def search_duckduckgo(query: str, max_results: int = 8) -> list[dict[str, str]]:
+    """Búsqueda web via DuckDuckGo (sin API key, sin rate limit estricto)."""
+    from ddgs import DDGS  # noqa: WPS433
+
+    try:
+        with DDGS() as ddgs:
+            results = list(
+                ddgs.text(query, max_results=max_results, region="wt-wt")
+            )
+    except Exception as exc:  # noqa: BLE001
+        print(f"   ⚠️  DDG error en '{query}': {exc}")
+        return []
+
+    cleaned = []
+    for r in results:
+        url = r.get("href") or r.get("url") or ""
+        title = r.get("title", "")
+        snippet = r.get("body") or r.get("snippet", "")
+        if not url or not title:
+            continue
+        cleaned.append({"title": title, "url": url, "snippet": snippet})
+    return cleaned
+
+
 def research_real_tools(client: Any, industry: str, software_type: str) -> str:
-    """Pasada 1: investigación con Google Search grounding."""
+    """Pasada 1: investigación REAL via DuckDuckGo (gratis, sin quota).
+
+    Hace 3 búsquedas con queries complementarias, deduplica por URL y
+    formatea los snippets como notas para que el composer arme el artículo.
+    Gemini queda fuera de esta etapa → no consume quota.
+    """
+    queries = [
+        f"mejor {software_type} para {industry} 2026",
+        f"top {software_type} {industry} comparativa",
+        f"{software_type} {industry} precios opiniones",
+    ]
+
+    seen: set[str] = set()
+    aggregated: list[dict[str, str]] = []
+    for q in queries:
+        for r in search_duckduckgo(q, max_results=8):
+            url = r["url"]
+            # Dedupe por dominio raíz (no queremos 3 URLs del mismo blog).
+            domain = re.sub(r"^https?://(www\.)?", "", url).split("/")[0]
+            key = domain.lower()
+            if key in seen:
+                continue
+            seen.add(key)
+            aggregated.append(r)
+        # Cortesía con DDG entre queries del mismo lote.
+        time.sleep(1)
+
+    if not aggregated:
+        raise RuntimeError("DuckDuckGo no devolvió resultados (probá de nuevo)")
+
+    # Top 12 fuentes — suficiente contexto sin saturar el prompt.
+    notes_blocks = []
+    for r in aggregated[:12]:
+        notes_blocks.append(
+            f"## {r['title']}\nURL: {r['url']}\n{r['snippet']}"
+        )
+    return "\n\n".join(notes_blocks)
+
+
+# (mantenido por compatibilidad — ya no se usa por defecto)
+def _research_with_gemini_grounding(
+    client: Any, industry: str, software_type: str
+) -> str:
+    """Pasada 1 ALT: grounding nativo de Gemini (consume quota free 20/día)."""
     response = _generate_with_retry(
         client,
         model=GEMINI_MODEL,
         contents=build_research_prompt(industry, software_type),
         config={
-            # Tool de Google Search → respuestas grounded en web real.
             "tools": [{"google_search": {}}],
             "temperature": 0.3,
             "max_output_tokens": 4096,
@@ -215,8 +281,12 @@ def research_real_tools(client: Any, industry: str, software_type: str) -> str:
 def compose_seo_article(
     client: Any, industry: str, software_type: str, research_notes: str
 ) -> dict[str, str]:
-    """Pasada 2: compone el artículo SEO en JSON estricto."""
-    response = client.models.generate_content(
+    """Pasada 2: compone el artículo SEO en JSON estricto.
+
+    Endpoint NORMAL de Gemini (sin tools) → quota free de 250 RPD.
+    """
+    response = _generate_with_retry(
+        client,
         model=GEMINI_MODEL,
         contents=build_compose_prompt(industry, software_type, research_notes),
         config={
