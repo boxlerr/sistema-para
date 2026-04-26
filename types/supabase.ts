@@ -14,6 +14,75 @@ export type Database = {
   }
   public: {
     Tables: {
+      listed_systems: {
+        Row: {
+          contact_email: string
+          contact_name: string
+          created_at: string
+          id: string
+          industries: string[]
+          logo_url: string | null
+          long_description: string
+          name: string
+          paid_until: string | null
+          payment_id: string | null
+          payment_provider: string | null
+          payment_session_id: string | null
+          plan: Database["public"]["Enums"]["listing_plan"]
+          pricing_model: string | null
+          primary_category: string
+          short_description: string
+          slug: string
+          status: Database["public"]["Enums"]["listing_status"]
+          updated_at: string
+          website: string
+        }
+        Insert: {
+          contact_email: string
+          contact_name: string
+          created_at?: string
+          id?: string
+          industries?: string[]
+          logo_url?: string | null
+          long_description: string
+          name: string
+          paid_until?: string | null
+          payment_id?: string | null
+          payment_provider?: string | null
+          payment_session_id?: string | null
+          plan?: Database["public"]["Enums"]["listing_plan"]
+          pricing_model?: string | null
+          primary_category: string
+          short_description: string
+          slug: string
+          status?: Database["public"]["Enums"]["listing_status"]
+          updated_at?: string
+          website: string
+        }
+        Update: {
+          contact_email?: string
+          contact_name?: string
+          created_at?: string
+          id?: string
+          industries?: string[]
+          logo_url?: string | null
+          long_description?: string
+          name?: string
+          paid_until?: string | null
+          payment_id?: string | null
+          payment_provider?: string | null
+          payment_session_id?: string | null
+          plan?: Database["public"]["Enums"]["listing_plan"]
+          pricing_model?: string | null
+          primary_category?: string
+          short_description?: string
+          slug?: string
+          status?: Database["public"]["Enums"]["listing_status"]
+          updated_at?: string
+          website?: string
+        }
+        Relationships: []
+      }
       seo_pages: {
         Row: {
           created_at: string
@@ -58,7 +127,13 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      listing_plan: "basic" | "pro" | "featured"
+      listing_status:
+        | "draft"
+        | "pending_payment"
+        | "active"
+        | "expired"
+        | "rejected"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -185,6 +260,15 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      listing_plan: ["basic", "pro", "featured"],
+      listing_status: [
+        "draft",
+        "pending_payment",
+        "active",
+        "expired",
+        "rejected",
+      ],
+    },
   },
 } as const

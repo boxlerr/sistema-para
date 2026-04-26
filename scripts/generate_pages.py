@@ -42,7 +42,7 @@ ROOT_DIR = Path(__file__).resolve().parent.parent
 ENV_PATH = ROOT_DIR / ".env.local"
 DEFAULT_CSV = Path(__file__).resolve().parent / "keywords.csv"
 
-GEMINI_MODEL = "gemini-2.5-flash"
+GEMINI_MODEL = "gemini-2.5-flash-lite"  # bucket de quota separado del 2.5-flash
 SLEEP_SECONDS_BETWEEN_CALLS = 4  # 2 calls por fila → margen para rate limits
 SUPABASE_TABLE = "seo_pages"
 
@@ -302,12 +302,55 @@ def compose_seo_article(
     if not text:
         raise RuntimeError("Compose vacía")
 
-    data = json.loads(text)
+    data = _parse_json_lenient(text)
     required = {"h1_title", "meta_title", "meta_description", "html_content"}
     missing = required - set(data.keys())
     if missing:
         raise RuntimeError(f"JSON incompleto, faltan claves: {missing}")
     return data
+
+
+def _parse_json_lenient(text: str) -> dict[str, Any]:
+    """Parsea JSON tolerando contenido extra después del primer objeto válido."""
+    try:
+        return json.loads(text)
+    except json.JSONDecodeError:
+        pass
+
+    # Modo lenient: usar JSONDecoder.raw_decode que extrae el primer objeto.
+    decoder = json.JSONDecoder()
+    try:
+        obj, _idx = decoder.raw_decode(text)
+        if isinstance(obj, dict):
+            return obj
+    except json.JSONDecodeError:
+        pass
+
+    # Último recurso: buscar el primer { y matchear paréntesis balanceados.
+    start = text.find("{")
+    if start >= 0:
+        depth = 0
+        in_str = False
+        esc = False
+        for i in range(start, len(text)):
+            ch = text[i]
+            if in_str:
+                if esc:
+                    esc = False
+                elif ch == "\\":
+                    esc = True
+                elif ch == '"':
+                    in_str = False
+                continue
+            if ch == '"':
+                in_str = True
+            elif ch == "{":
+                depth += 1
+            elif ch == "}":
+                depth -= 1
+                if depth == 0:
+                    return json.loads(text[start : i + 1])
+    raise RuntimeError("No se pudo parsear JSON")
 
 
 def generate_seo_page(

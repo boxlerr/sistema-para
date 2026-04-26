@@ -41,12 +41,15 @@ export default function Home() {
         </p>
 
         <form
+          action="/buscar"
+          method="get"
           role="search"
           className="mx-auto mt-10 flex max-w-xl items-center gap-2 rounded-xl bg-white p-2 shadow-sm ring-1 ring-slate-200"
         >
           <input
             type="search"
-            placeholder="Buscar sistemas, categorías o empresas..."
+            name="q"
+            placeholder="Buscar sistemas, categorías o industrias..."
             className="flex-1 rounded-lg bg-transparent px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none"
           />
           <button type="submit" className="btn-accent">
