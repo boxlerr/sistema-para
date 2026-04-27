@@ -31,8 +31,8 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
-                <Link href="/empresas" className="text-sm text-slate-600 hover:text-indigo-600 transition-colors">
-                  Empresas
+                <Link href="/buscar" className="text-sm text-slate-600 hover:text-indigo-600 transition-colors">
+                  Buscar
                 </Link>
               </li>
               <li>
@@ -48,23 +48,23 @@ export default function Footer() {
             <h3 className="font-heading font-semibold text-slate-900 mb-4">Industrias</h3>
             <ul className="space-y-3">
               <li>
-                <Link href="/categorias/retail" className="text-sm text-slate-600 hover:text-indigo-600 transition-colors">
-                  Retail
+                <Link href="/sistemas/ferreterias" className="text-sm text-slate-600 hover:text-indigo-600 transition-colors">
+                  Ferreterías
                 </Link>
               </li>
               <li>
-                <Link href="/categorias/salud" className="text-sm text-slate-600 hover:text-indigo-600 transition-colors">
-                  Salud
+                <Link href="/sistemas/restaurantes" className="text-sm text-slate-600 hover:text-indigo-600 transition-colors">
+                  Restaurantes
                 </Link>
               </li>
               <li>
-                <Link href="/categorias/manufactura" className="text-sm text-slate-600 hover:text-indigo-600 transition-colors">
-                  Manufactura
+                <Link href="/sistemas/inmobiliarias" className="text-sm text-slate-600 hover:text-indigo-600 transition-colors">
+                  Inmobiliarias
                 </Link>
               </li>
               <li>
-                <Link href="/categorias/finanzas" className="text-sm text-slate-600 hover:text-indigo-600 transition-colors">
-                  Finanzas
+                <Link href="/sistemas" className="text-sm text-slate-600 hover:text-indigo-600 transition-colors font-semibold">
+                  Ver todas →
                 </Link>
               </li>
             </ul>
@@ -80,8 +80,8 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
-                <Link href="/guias" className="text-sm text-slate-600 hover:text-indigo-600 transition-colors">
-                  Guías de compra
+                <Link href="/categorias" className="text-sm text-slate-600 hover:text-indigo-600 transition-colors">
+                  Guías por categoría
                 </Link>
               </li>
               <li>
